@@ -4,14 +4,14 @@ import numpy as np
 from scipy.spatial.distance import pdist
 
 
-def pdist_wrapper(x, metric, *, out=None, **kwargs):
+def pdist_wrapper(x, metric, *, out=None, verbose, **kwargs):
     if type(x) is np.ndarray:
         return pdist(x, metric, out=out)
     else:
-        return pdist_obj(x, metric, out=out, **kwargs)
+        return pdist_obj(x, metric, out=out, verbose=verbose, **kwargs)
 
 
-def pdist_obj(x, metric, dtype=np.float, out=None, verbose=False, **kwargs):
+def pdist_obj(x, metric, dtype=float, out=None, verbose=False, **kwargs):
     """
     Compute the distance between each pair of the input collection. This is a adaption of scipy.spatial.distance.pdist
     to work with objects instead of arrays.
@@ -35,7 +35,7 @@ def pdist_obj(x, metric, dtype=np.float, out=None, verbose=False, **kwargs):
     k = 0
     for i in range(n - 1):
         for j in range(i + 1, n):
-            if verbose and k % 1000 == 0:
+            if verbose and k % 10 == 0:
                 logging.info(f"Distance Metric Progress {k}/{out_size}")
             dm[k] = metric(x[i], x[j], **kwargs)
             k += 1

@@ -2,7 +2,7 @@ from typing import Sequence, Union, Any
 
 import numpy as np
 from darts import TimeSeries
-from darts.metrics import smape, mae
+from darts.metrics import mae
 from darts.models import LightGBMModel
 from optuna import Trial
 
@@ -11,11 +11,11 @@ from src.aggregation.objective_factories.objective_factory import ObjectiveFacto
 
 class LightGBMObjectiveFactory(ObjectiveFactory):
     def create(
-        self,
-        series: Union[TimeSeries, Sequence[TimeSeries]],
-        covariates: Union[TimeSeries, Sequence[TimeSeries]],
-        validation_series: Union[TimeSeries, Sequence[TimeSeries]],
-        validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
+            self,
+            series: Union[TimeSeries, Sequence[TimeSeries]],
+            covariates: Union[TimeSeries, Sequence[TimeSeries]],
+            validation_series: Union[TimeSeries, Sequence[TimeSeries]],
+            validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
     ):
         predict_covariates = [
             past_covariate.append(validation_past_covariate)

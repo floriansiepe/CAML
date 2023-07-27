@@ -1,4 +1,4 @@
-from typing import Iterable, List, Union
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
@@ -29,7 +29,7 @@ class ModelAggregation:
 
         self.cluster_model_data = []
 
-        for cluster_id in df["cluster"].unique().sort():
+        for cluster_id in df["cluster"].unique():
             cluster_dataset = df[df["cluster"] == cluster_id]["model_data"].tolist()
             cluster_model = self._aggregate(cluster_dataset, cluster_id)
             self.cluster_model_data.append(cluster_model)

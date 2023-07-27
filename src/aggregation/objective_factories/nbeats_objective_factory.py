@@ -2,7 +2,7 @@ from typing import Union, Sequence, Callable, Any
 
 import numpy as np
 from darts import TimeSeries
-from darts.metrics import smape, mae
+from darts.metrics import mae
 from darts.models import NBEATSModel
 from darts.models.forecasting.forecasting_model import GlobalForecastingModel
 from optuna import Trial
@@ -14,11 +14,11 @@ from src.aggregation.utils.pytorch_lightning_pruning_callback import PyTorchLigh
 
 class NBeatsObjectiveFactory(ObjectiveFactory):
     def create(
-        self,
-        series: Union[TimeSeries, Sequence[TimeSeries]],
-        covariates: Union[TimeSeries, Sequence[TimeSeries]],
-        validation_series: Union[TimeSeries, Sequence[TimeSeries]],
-        validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
+            self,
+            series: Union[TimeSeries, Sequence[TimeSeries]],
+            covariates: Union[TimeSeries, Sequence[TimeSeries]],
+            validation_series: Union[TimeSeries, Sequence[TimeSeries]],
+            validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
     ) -> Callable[[Trial], float]:
         predict_covariates = [
             past_covariate.append(validation_past_covariate)
@@ -82,7 +82,7 @@ class NBeatsObjectiveFactory(ObjectiveFactory):
         return objective
 
     def build_model(
-        self, params: dict[str, Any], **kwargs
+            self, params: dict[str, Any], **kwargs
     ) -> GlobalForecastingModel:
         n_epochs = kwargs.pop("n_epochs")
 

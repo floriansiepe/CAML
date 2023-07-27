@@ -29,11 +29,11 @@ class ClusterModelTrainer:
         self.objective_factory = objective_factories
 
     def train(
-        self,
-        timeseries_dataset: List[ModelData],
-        verbose: bool = True,
-        global_fit: bool = True,
-        **kwargs,
+            self,
+            timeseries_dataset: List[ModelData],
+            verbose: bool = True,
+            global_fit: bool = True,
+            **kwargs,
     ) -> GlobalForecastingModel:
         """Train a cluster model"""
         logging.info(

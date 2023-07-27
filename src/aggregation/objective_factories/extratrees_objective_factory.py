@@ -3,7 +3,7 @@ from typing import Union, Sequence, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
 from darts import TimeSeries
-from darts.metrics import smape, mae
+from darts.metrics import mae
 from darts.models import RegressionModel
 from darts.models.forecasting.forecasting_model import GlobalForecastingModel
 from optuna import Trial
@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler
 
 from src.aggregation.objective_factories.objective_factory import ObjectiveFactory
 
+
 # log_10(x+1)
 def log10p(x):
     return np.log10(1 + x)
@@ -21,15 +22,16 @@ def log10p(x):
 
 # 10^x - 1
 def exp10p(x):
-    return 10**x - 1
+    return 10 ** x - 1
+
 
 class ExtraTreesObjectiveFactory(ObjectiveFactory):
     def create(
-        self,
-        series: Union[TimeSeries, Sequence[TimeSeries]],
-        covariates: Union[TimeSeries, Sequence[TimeSeries]],
-        validation_series: Union[TimeSeries, Sequence[TimeSeries]],
-        validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
+            self,
+            series: Union[TimeSeries, Sequence[TimeSeries]],
+            covariates: Union[TimeSeries, Sequence[TimeSeries]],
+            validation_series: Union[TimeSeries, Sequence[TimeSeries]],
+            validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
     ):
         predict_covariates = [
             past_covariate.append(validation_past_covariate)
@@ -37,22 +39,6 @@ class ExtraTreesObjectiveFactory(ObjectiveFactory):
                 covariates, validation_covariates
             )
         ]
-
-        # y_train = pd.concat([s.pd_dataframe() for s in series], )
-        # y_test = pd.concat([s.pd_dataframe() for s in validation_series], )
-        # x_train = pd.concat([s.pd_dataframe() for s in covariates], )
-        # x_test = pd.concat([s.pd_dataframe() for s in validation_covariates], )
-        #
-        # # We then fit the StandardScaler on the whole training set
-        # sc = StandardScaler()
-        # sc.fit(x_train)
-        # X_train_scaled = sc.transform(
-        #     x_train
-        # )
-        #
-        # X_test_scaled = sc.transform(
-        #     x_test
-        # )
 
         def objective(trial: Trial):
             params = {
@@ -86,7 +72,7 @@ class ExtraTreesObjectiveFactory(ObjectiveFactory):
         return objective
 
     def build_model(
-        self, params: dict[str, Any], **kwargs
+            self, params: dict[str, Any], **kwargs
     ) -> GlobalForecastingModel:
         lags = params.pop("lags")
         return RegressionModel(
@@ -108,14 +94,14 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
         self.model = model
 
     def fit(
-        self,
-        series: Union[TimeSeries, Sequence[TimeSeries]],
-        past_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        future_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
+            self,
+            series: Union[TimeSeries, Sequence[TimeSeries]],
+            past_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            future_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
     ) -> "GlobalForecastingModel":
         # Check if the series is a sequence of TimeSeries
         if isinstance(series, Sequence):
@@ -143,21 +129,21 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
         return self
 
     def predict(
-        self,
-        n: int,
-        series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
-        past_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        future_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        num_samples: int = 1,
-        verbose: bool = False,
+            self,
+            n: int,
+            series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+            past_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            future_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            num_samples: int = 1,
+            verbose: bool = False,
     ) -> Union[TimeSeries, Sequence[TimeSeries]]:
         # Check if the covariates is a sequence of TimeSeries
         if isinstance(future_covariates, Sequence) and isinstance(
-            series, Sequence
+                series, Sequence
         ):
             return [
                 self._predict_single(n, s, None, c)
@@ -168,11 +154,11 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
         )
 
     def _predict_single(
-        self,
-        n: int,
-        series: Optional[TimeSeries] = None,
-        past_covariates: Optional[TimeSeries] = None,
-        future_covariates: Optional[TimeSeries] = None,
+            self,
+            n: int,
+            series: Optional[TimeSeries] = None,
+            past_covariates: Optional[TimeSeries] = None,
+            future_covariates: Optional[TimeSeries] = None,
     ) -> TimeSeries:
         if past_covariates is not None:
             raise NotImplementedError(
@@ -198,7 +184,7 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
 
     @property
     def extreme_lags(
-        self,
+            self,
     ) -> Tuple[
         Optional[int],
         Optional[int],
@@ -211,7 +197,7 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
 
     @property
     def _model_encoder_settings(
-        self,
+            self,
     ) -> Tuple[
         Optional[int],
         Optional[int],

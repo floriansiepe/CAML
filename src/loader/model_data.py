@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 
-import pandas as pd
 from darts import TimeSeries
-from sklearn.base import RegressorMixin
+from darts.models.forecasting.forecasting_model import GlobalForecastingModel
 
 
 @dataclass
 class ModelData:
-    model: RegressorMixin
+    model: GlobalForecastingModel
     test_x: TimeSeries
     test_y: TimeSeries
     train_x: TimeSeries

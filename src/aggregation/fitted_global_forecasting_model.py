@@ -27,7 +27,7 @@ class FittedGlobalForecastingModel(GlobalForecastingModel):
 
     @staticmethod
     def load_model(
-        path: Union[str, BinaryIO], model_type
+            path: Union[str, BinaryIO], model_type
     ) -> "GlobalForecastingModel":
         cm = load_pickle(path)
         internal_model = None
@@ -43,20 +43,20 @@ class FittedGlobalForecastingModel(GlobalForecastingModel):
         return cm
 
     def save(
-        self, path: Optional[Union[str, BinaryIO]] = None, **pkl_kwargs
+            self, path: Optional[Union[str, BinaryIO]] = None, **pkl_kwargs
     ) -> None:
         dump_pickle(path, self)
         self.model.save(path + "_internal_model.pkl")
 
     def clever_fit(
-        self,
-        series: Union[TimeSeries, Sequence[TimeSeries]],
-        covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
-        val_series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
-        val_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        **kwargs,
+            self,
+            series: Union[TimeSeries, Sequence[TimeSeries]],
+            covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+            val_series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+            val_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            **kwargs,
     ):
         if self.model.supports_future_covariates:
             self.fit(
@@ -77,10 +77,10 @@ class FittedGlobalForecastingModel(GlobalForecastingModel):
         return self
 
     def clever_predict(
-        self,
-        n: int,
-        series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
-        covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+            self,
+            n: int,
+            series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+            covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
     ) -> Union[TimeSeries, Sequence[TimeSeries]]:
         if self.model.supports_future_covariates:
             return self.predict(
@@ -90,15 +90,15 @@ class FittedGlobalForecastingModel(GlobalForecastingModel):
             return self.predict(n=n, series=series, past_covariates=covariates)
 
     def fit(
-        self,
-        series: Union[TimeSeries, Sequence[TimeSeries]],
-        past_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        future_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        **kwargs,
+            self,
+            series: Union[TimeSeries, Sequence[TimeSeries]],
+            past_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            future_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            **kwargs,
     ) -> "FittedGlobalForecastingModel":
         series_copy = series.copy()
         past_covariates_copy = (
@@ -141,17 +141,17 @@ class FittedGlobalForecastingModel(GlobalForecastingModel):
         return self
 
     def predict(
-        self,
-        n: int,
-        series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
-        past_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        future_covariates: Optional[
-            Union[TimeSeries, Sequence[TimeSeries]]
-        ] = None,
-        num_samples: int = 1,
-        verbose: bool = False,
+            self,
+            n: int,
+            series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+            past_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            future_covariates: Optional[
+                Union[TimeSeries, Sequence[TimeSeries]]
+            ] = None,
+            num_samples: int = 1,
+            verbose: bool = False,
     ) -> Union[TimeSeries, Sequence[TimeSeries]]:
         series_scaled = self.pipeline_series.transform(series)
         future_covariates_scaled = None
@@ -179,18 +179,11 @@ class FittedGlobalForecastingModel(GlobalForecastingModel):
             retrain=False,
             start=len(series) - n,
         )
-        # raw_preds = self.model.predict(
-        #     n=n,
-        #     series=series_scaled,
-        #     past_covariates=past_covariates_scaled,
-        #     future_covariates=future_covariates_scaled,
-        #     verbose=verbose,
-        # )
         return self.pipeline_series.inverse_transform(raw_preds)
 
     @property
     def extreme_lags(
-        self,
+            self,
     ) -> Tuple[
         Optional[int],
         Optional[int],
@@ -203,7 +196,7 @@ class FittedGlobalForecastingModel(GlobalForecastingModel):
 
     @property
     def _model_encoder_settings(
-        self,
+            self,
     ) -> Tuple[
         Optional[int],
         Optional[int],
