@@ -4,7 +4,6 @@ from typing import List
 import pandas as pd
 from darts import TimeSeries
 from darts.datasets import ElectricityDataset
-from darts.metrics import mae
 from darts.models import RegressionModel
 from darts.models.forecasting.forecasting_model import GlobalForecastingModel
 
@@ -12,6 +11,7 @@ from src.aggregation.model_aggregation import ModelAggregation
 from src.aggregation.objective_factories.lightgbm_objective_factory import LightGBMObjectiveFactory
 from src.aggregation.objective_factories.xgboost_objective_factory import XGBoostObjectiveFactory
 from src.clustering.model_clustering import ModelClustering
+from src.evaluation.timeseries_clustering_evaluator import TimeseriesClusteringEvaluator
 from src.loader.data_loader import DataLoader
 from src.loader.model_data import ModelData
 
@@ -26,7 +26,6 @@ class DummyDataLoader(DataLoader):
         multi_serie_elec = ElectricityDataset().load()
         # Drop some data to speed up the demo
         multi_serie_elec = multi_serie_elec.drop_before(pd.Timestamp('2012-01-01'))
-        print(mae(multi_serie_elec.univariate_component(1), multi_serie_elec.univariate_component(2)))
 
         for i in range(0, 10):
             timeseries = multi_serie_elec.univariate_component(i + 1)
@@ -42,6 +41,7 @@ class DummyDataLoader(DataLoader):
 
             # Because the toy data set is univariate, features (x) and labels (y) are the same
             model_data = ModelData(
+                id=i,
                 model=model,
                 train_x=train,
                 train_y=train,
@@ -61,14 +61,20 @@ def predictor(model: GlobalForecastingModel, n: int, x: TimeSeries) -> TimeSerie
 
 logging.info("Loading the clustering model")
 data_loader = DummyDataLoader()
+data = data_loader.load()
 logging.info("Clustering the models")
-clustering = ModelClustering(data_loader=data_loader, predictor=predictor, verbose=True)
+clustering = ModelClustering(data=data, predictor=predictor, verbose=True)
 clustering.fit()
 logging.info("Extracting cluster labels")
 labels = clustering.transform(k=5)
 
 logging.info("Aggregate models")
 model_aggregation = ModelAggregation(objective_factories=[XGBoostObjectiveFactory(), LightGBMObjectiveFactory()])
-model_aggregation.fit(model_data=data_loader.load(), cluster=labels)
-cluster_models = model_aggregation.transform()
+model_aggregation.fit(model_data=data, cluster=labels)
+cluster_models_df = model_aggregation.transform()
 logging.info("Done")
+
+cluster_models_df.to_parquet("cluster_models.parquet")
+
+logging.info("Evaluate the cluster models")
+clustering_evaluator = TimeseriesClusteringEvaluator(cluster_models_df)

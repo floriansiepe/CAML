@@ -6,6 +6,7 @@ from darts.models.forecasting.forecasting_model import GlobalForecastingModel
 
 @dataclass
 class ModelData:
+    id: int
     model: GlobalForecastingModel
     test_x: TimeSeries
     test_y: TimeSeries
