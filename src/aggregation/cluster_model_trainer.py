@@ -16,9 +16,7 @@ warnings.simplefilter("ignore", UserWarning)
 
 # for convenience, print some optimization trials information
 def print_callback(study, trial):
-    logging.info(
-        f"Current value: {trial.value}, Current params: {trial.params}"
-    )
+    logging.info(f"Current value: {trial.value}, Current params: {trial.params}")
     logging.info(
         f"Best value: {study.best_value}, Best params: {study.best_trial.params}"
     )
@@ -29,16 +27,14 @@ class ClusterModelTrainer:
         self.objective_factory = objective_factories
 
     def train(
-            self,
-            timeseries_dataset: List[ModelData],
-            verbose: bool = True,
-            global_fit: bool = True,
-            **kwargs,
+        self,
+        timeseries_dataset: List[ModelData],
+        verbose: bool = True,
+        global_fit: bool = True,
+        **kwargs,
     ) -> GlobalForecastingModel:
         """Train a cluster model"""
-        logging.info(
-            "Training cluster model. size: %s", len(timeseries_dataset)
-        )
+        logging.info("Training cluster model. size: %s", len(timeseries_dataset))
         pipeline_series = Pipeline(
             [
                 Scaler(n_jobs=-1, verbose=verbose, global_fit=global_fit),
@@ -66,9 +62,7 @@ class ClusterModelTrainer:
 
         # Fit the pipeline on the training data
         series_scaled = pipeline_series.fit_transform(series)
-        covariates_scaled = pipeline_covariates.fit_transform(
-            covariates_retrain
-        )
+        covariates_scaled = pipeline_covariates.fit_transform(covariates_retrain)
         validation_series_scaled = pipeline_series.transform(validation_series)
         validation_covariates_scaled = pipeline_covariates.transform(
             validation_covariates
@@ -79,9 +73,7 @@ class ClusterModelTrainer:
 
         # Iterate over the objective factories and find the best hyperparameters
         for i, objective_factory in enumerate(self.objective_factory):
-            logging.info(
-                "Training cluster model. objective_factory: %s", i
-            )
+            logging.info("Training cluster model. objective_factory: %s", i)
             # Train the model on the training data
             objective = objective_factory.create(
                 series_scaled,
@@ -105,9 +97,7 @@ class ClusterModelTrainer:
             params.append(best_params)
 
         # Select the best objective factory
-        best_objective_factory = self.objective_factory[
-            scores.index(min(scores))
-        ]
+        best_objective_factory = self.objective_factory[scores.index(min(scores))]
 
         # Select the best hyperparameters
         best_params = params[scores.index(min(scores))]
@@ -119,18 +109,12 @@ class ClusterModelTrainer:
         val_series_retrain = []
         val_covariates_retrain = []
         for split_timeseries in timeseries_dataset:
-            series = split_timeseries.train_y.append(
-                split_timeseries.validation_y
-            )
-            covariate = split_timeseries.train_x.append(
-                split_timeseries.validation_x
-            )
+            series = split_timeseries.train_y.append(split_timeseries.validation_y)
+            covariate = split_timeseries.train_x.append(split_timeseries.validation_x)
             series_retrain.append(series)
             covariates_retrain.append(covariate)
             val_series_retrain.append(series.append(split_timeseries.test_y))
-            val_covariates_retrain.append(
-                covariate.append(split_timeseries.test_x)
-            )
+            val_covariates_retrain.append(covariate.append(split_timeseries.test_x))
 
         best_model = best_objective_factory.build_model(best_params, **kwargs)
 
@@ -145,9 +129,4 @@ class ClusterModelTrainer:
             epochs=1,
         )
 
-        # Predict some demo values for torch models to initialize the params, otherwise the params will be None in the saved model
-        demo_preds = cluster_model.clever_predict(
-            1, series=[series_retrain[0]], covariates=[covariates_retrain[0]]
-        )
-        # Return the pipeline with the best model
         return cluster_model

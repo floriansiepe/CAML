@@ -22,16 +22,16 @@ def log10p(x):
 
 # 10^x - 1
 def exp10p(x):
-    return 10 ** x - 1
+    return 10**x - 1
 
 
 class ExtraTreesObjectiveFactory(ObjectiveFactory):
     def create(
-            self,
-            series: Union[TimeSeries, Sequence[TimeSeries]],
-            covariates: Union[TimeSeries, Sequence[TimeSeries]],
-            validation_series: Union[TimeSeries, Sequence[TimeSeries]],
-            validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
+        self,
+        series: Union[TimeSeries, Sequence[TimeSeries]],
+        covariates: Union[TimeSeries, Sequence[TimeSeries]],
+        validation_series: Union[TimeSeries, Sequence[TimeSeries]],
+        validation_covariates: Union[TimeSeries, Sequence[TimeSeries]],
     ):
         predict_covariates = [
             past_covariate.append(validation_past_covariate)
@@ -45,9 +45,8 @@ class ExtraTreesObjectiveFactory(ObjectiveFactory):
                 "n_estimators": trial.suggest_int("n_estimators", 10, 100),
                 "max_depth": trial.suggest_int("max_depth", 1, 10),
             }
-            lags = trial.suggest_int("lags", 1, 30)
             model = RegressionModel(
-                lags_future_covariates=(lags, 1),
+                lags_future_covariates=(14, 1),
                 model=TransformedTargetRegressor(
                     regressor=ExtraTreesRegressor(random_state=42, **params),
                     func=log10p,
@@ -71,12 +70,9 @@ class ExtraTreesObjectiveFactory(ObjectiveFactory):
 
         return objective
 
-    def build_model(
-            self, params: dict[str, Any], **kwargs
-    ) -> GlobalForecastingModel:
-        lags = params.pop("lags")
+    def build_model(self, params: dict[str, Any], **kwargs) -> GlobalForecastingModel:
         return RegressionModel(
-            lags_future_covariates=(lags, 1),
+            lags_future_covariates=(14, 1),
             model=TransformedTargetRegressor(
                 regressor=ExtraTreesRegressor(**params),
                 func=log10p,
@@ -94,14 +90,10 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
         self.model = model
 
     def fit(
-            self,
-            series: Union[TimeSeries, Sequence[TimeSeries]],
-            past_covariates: Optional[
-                Union[TimeSeries, Sequence[TimeSeries]]
-            ] = None,
-            future_covariates: Optional[
-                Union[TimeSeries, Sequence[TimeSeries]]
-            ] = None,
+        self,
+        series: Union[TimeSeries, Sequence[TimeSeries]],
+        past_covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+        future_covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
     ) -> "GlobalForecastingModel":
         # Check if the series is a sequence of TimeSeries
         if isinstance(series, Sequence):
@@ -129,36 +121,28 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
         return self
 
     def predict(
-            self,
-            n: int,
-            series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
-            past_covariates: Optional[
-                Union[TimeSeries, Sequence[TimeSeries]]
-            ] = None,
-            future_covariates: Optional[
-                Union[TimeSeries, Sequence[TimeSeries]]
-            ] = None,
-            num_samples: int = 1,
-            verbose: bool = False,
+        self,
+        n: int,
+        series: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+        past_covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+        future_covariates: Optional[Union[TimeSeries, Sequence[TimeSeries]]] = None,
+        num_samples: int = 1,
+        verbose: bool = False,
     ) -> Union[TimeSeries, Sequence[TimeSeries]]:
         # Check if the covariates is a sequence of TimeSeries
-        if isinstance(future_covariates, Sequence) and isinstance(
-                series, Sequence
-        ):
+        if isinstance(future_covariates, Sequence) and isinstance(series, Sequence):
             return [
                 self._predict_single(n, s, None, c)
                 for s, c in zip(series, future_covariates)
             ]
-        return self._predict_single(
-            n, series, past_covariates, future_covariates
-        )
+        return self._predict_single(n, series, past_covariates, future_covariates)
 
     def _predict_single(
-            self,
-            n: int,
-            series: Optional[TimeSeries] = None,
-            past_covariates: Optional[TimeSeries] = None,
-            future_covariates: Optional[TimeSeries] = None,
+        self,
+        n: int,
+        series: Optional[TimeSeries] = None,
+        past_covariates: Optional[TimeSeries] = None,
+        future_covariates: Optional[TimeSeries] = None,
     ) -> TimeSeries:
         if past_covariates is not None:
             raise NotImplementedError(
@@ -171,9 +155,7 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
             return TimeSeries.from_dataframe(
                 pd.DataFrame(
                     y_pred,
-                    index=[
-                        series.end_time() + i * series.freq() for i in range(n)
-                    ],
+                    index=[series.end_time() + i * series.freq() for i in range(n)],
                     columns=[series.components[0]],
                 )
             )
@@ -184,7 +166,7 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
 
     @property
     def extreme_lags(
-            self,
+        self,
     ) -> Tuple[
         Optional[int],
         Optional[int],
@@ -197,7 +179,7 @@ class GlobalRetrainingClusterModel(GlobalForecastingModel):
 
     @property
     def _model_encoder_settings(
-            self,
+        self,
     ) -> Tuple[
         Optional[int],
         Optional[int],

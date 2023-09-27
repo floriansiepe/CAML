@@ -1,6 +1,8 @@
-from typing import Tuple
+from typing import Tuple, Callable
 
 import pandas as pd
+from darts import TimeSeries
+from darts.models.forecasting.forecasting_model import GlobalForecastingModel
 
 from src.aggregation.fitted_global_forecasting_model import FittedGlobalForecastingModel
 from src.evaluation.clustering_evaluator import ClusteringEvaluator
@@ -9,8 +11,11 @@ from src.evaluation.timeseries_model_evaluator import TimeseriesEvaluator
 
 class TimeseriesClusteringEvaluator(ClusteringEvaluator):
     def __init__(
-            self,
-            cluster_model_df: pd.DataFrame,
+        self,
+        cluster_model_df: pd.DataFrame,
+        predictor: Callable[
+            [GlobalForecastingModel, int, TimeSeries, TimeSeries], TimeSeries
+        ],
     ):
         if cluster_model_df is None:
             raise ValueError("model_df must be provided")
@@ -39,16 +44,18 @@ class TimeseriesClusteringEvaluator(ClusteringEvaluator):
         for _, row in cluster_model_df.iterrows():
             self.timeseries[row["model_data"].id] = row["model_data"]
         for cluster in cluster_model_df["cluster"].unique():
-            self.cluster_models[cluster] = cluster_model_df[cluster_model_df["cluster"] == cluster]["model"].iloc[0]
+            self.cluster_models[cluster] = cluster_model_df[
+                cluster_model_df["cluster"] == cluster
+            ]["cluster_model"].iloc[0]
+
+        self.predictor = predictor
 
     def evaluate(self):
         self._evaluate_scores()
 
     def _evaluate_scores(self):
         # Evaluate the cluster and baseline scores for each cluster
-        series = self.model_df.groupby("cluster").apply(
-            self._evaluate_cluster_scores
-        )
+        series = self.model_df.groupby("cluster").apply(self._evaluate_cluster_scores)
         columns = [
             "cluster",
             "cluster_size",
@@ -74,7 +81,7 @@ class TimeseriesClusteringEvaluator(ClusteringEvaluator):
         for score in ["mae", "mse", "rmse", "uncertainty", "smape"]:
             self.scores[f"normalized_model_{score}"] = 0
             self.scores[f"normalized_cluster_{score}"] = (
-                    self.scores[f"cluster_{score}"] - self.scores[f"model_{score}"]
+                self.scores[f"cluster_{score}"] - self.scores[f"model_{score}"]
             )
 
     def _evaluate_cluster_scores(self, cluster_df: pd.DataFrame):
@@ -138,28 +145,32 @@ class TimeseriesClusteringEvaluator(ClusteringEvaluator):
         )
 
     def _evaluate_prediction(
-            self, row, cluster_model: FittedGlobalForecastingModel
-    ) -> Tuple[
-        float, float, float, float, float, float, float, float, float, float
-    ]:
+        self, row, cluster_model: FittedGlobalForecastingModel
+    ) -> Tuple[float, float, float, float, float, float, float, float, float, float]:
         model = row["model_data"].model
         return self._evaluate_model(row, model, cluster_model)
 
-    def _evaluate_model(self, row, baseline, cluster_model: FittedGlobalForecastingModel):
+    def _evaluate_model(
+        self, row, baseline, cluster_model: FittedGlobalForecastingModel
+    ):
         (
             model_mae,
             model_mse,
             model_rmse,
             model_uncertainty,
             model_smape,
-        ) = TimeseriesEvaluator(row, baseline, self.timeseries).evaluate()
+        ) = TimeseriesEvaluator(
+            row, baseline, self.timeseries, predictor=self.predictor
+        ).evaluate()
         (
             cluster_model_mae,
             cluster_model_mse,
             cluster_model_rmse,
             cluster_model_uncertainty,
             cluster_model_smape,
-        ) = TimeseriesEvaluator(row, cluster_model, self.timeseries).evaluate()
+        ) = TimeseriesEvaluator(
+            row, cluster_model, self.timeseries, predictor=self.predictor
+        ).evaluate()
         return (
             model_mae,
             model_mse,

@@ -1,6 +1,8 @@
-from typing import Tuple
+from typing import Tuple, Callable
 
 import numpy as np
+from darts import TimeSeries
+from darts.models.forecasting.forecasting_model import GlobalForecastingModel
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 from src.aggregation.fitted_global_forecasting_model import FittedGlobalForecastingModel
@@ -10,17 +12,21 @@ from src.loader.model_data import ModelData
 
 class TimeseriesEvaluator:
     def __init__(
-            self,
-            model_row,
-            model: FittedGlobalForecastingModel,
-            timeseries: dict[int, ModelData],
+        self,
+        model_row,
+        model: FittedGlobalForecastingModel,
+        timeseries: dict[int, ModelData],
+        predictor: Callable[
+            [GlobalForecastingModel, int, TimeSeries, TimeSeries], TimeSeries
+        ],
     ):
         self.model_row = model_row
         self.model = model
         self.timeseries = timeseries
+        self.predictor = predictor
 
     def evaluate(
-            self, model_row_validation_set=None
+        self, model_row_validation_set=None
     ) -> Tuple[float, float, float, float, float]:
         if model_row_validation_set is None:
             model_row_validation_set = self.model_row
@@ -50,17 +56,19 @@ class TimeseriesEvaluator:
         )
 
     def _evaluate_global_model(self, split_timeseries: ModelData):
-        series = split_timeseries.train_y.append(
-            split_timeseries.validation_y
-        ).append(split_timeseries.test_y)
+        series = split_timeseries.train_y.append(split_timeseries.validation_y).append(
+            split_timeseries.test_y
+        )
         covariates = split_timeseries.train_x.append(
             split_timeseries.validation_x
         ).append(split_timeseries.test_x)
+
         preds = (
-            self.model.clever_predict(
-                n=7,
-                series=series,
-                covariates=covariates,
+            self.predictor(
+                self.model,
+                len(split_timeseries.test_y),
+                series,
+                covariates,
             )
             .pd_dataframe()
             .values

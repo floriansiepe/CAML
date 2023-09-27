@@ -27,12 +27,12 @@ class ModelAggregation:
             "cluster": cluster
         })
 
-        cluster_model_data = []
+        cluster_model_data = {}
 
         for cluster_id in self.df["cluster"].unique():
             cluster_dataset = self.df[self.df["cluster"] == cluster_id]["model_data"].tolist()
             cluster_model = self._aggregate(cluster_dataset, cluster_id)
-            cluster_model_data.append(cluster_model)
+            cluster_model_data[cluster_id] = cluster_model
 
         self.df["cluster_model"] = self.df["cluster"].apply(lambda x: cluster_model_data[x])
         self.fitted = True
