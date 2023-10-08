@@ -2,8 +2,6 @@
 
 Source code for the paper "A Few Models to Rule Them All: Aggregating Machine Learning Models" at LWDA 2023
 
-# _**Under construction**_
-
 ## Installation
 
 ```bash
@@ -24,3 +22,9 @@ types (e.g. sklearn).
 To add a new model architecture, you need to create a new class that inherits
 from [`ObjectiveFactory`](src/aggregation/objective_factories/objective_factory.py) and implements the `create`
 and `build_model` methods. See also the [prebuilt factories](src/aggregation/objective_factories) for examples.
+
+## Citation
+
+```bibtex
+tbd
+```
