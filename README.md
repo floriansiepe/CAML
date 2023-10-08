@@ -1,6 +1,6 @@
 # CAML
 
-Source code for the paper "A Few Models to Rule Them All: Aggregating Machine Learning Models" at LWDA 2023
+Source code for the paper "A Few Models to Rule Them All: Aggregating Machine Learning Models" at LWDA 2023.
 
 ## Installation
 
@@ -36,7 +36,6 @@ If this is useful for your research, please consider citing the paper:
     year = {2023},
     series = {LWDA '23},
     location = {Marburg, Germany},
-    isbn = {urn:nbn:de:},
     publisher = {CEUR Workshop Proceedings},
     url = {https://ceur-ws.org/XXXX}
 }
