@@ -1,0 +1,51 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "A Few Models to Rule Them All: Aggregating Machine Learning Models"
+version: 1.0.0
+date-released: 2023-10-09
+
+authors:
+  - family-names: "Siepe"
+    given-names: "Florian"
+  - family-names: "Wenig"
+    given-names: "Philipp"
+  - family-names: "Papenbrock"
+    given-names: "Thorsten"
+
+conference:
+  name: "Conference Lernen, Wissen, Daten, Analysen"
+  acronym: "LWDA"
+  series: "LWDA '23"
+  location: "Marburg, Germany"
+  date-start: 2023-10-09
+  date-end: 2023-10-11
+
+repository-code: "https://github.com/floriansiepe/CAML"
+
+doi: "TBD"
+
+preferred-citation:
+  type: "conference-paper"
+  authors:
+    - family-names: "Siepe"
+      given-names: "Florian"
+      orcid: "0009-0008-5911-5327"
+    - family-names: "Wenig"
+      given-names: "Phillip"
+      orcid: "0000-0002-8942-4322"
+    - family-names: "Papenbrock"
+      given-names: "Thorsten"
+      orcid: "0000-0002-4019-8221"
+  title: "A Few Models to Rule Them All: Aggregating Machine Learning Models"
+  conference:
+    name: "Conference Lernen, Wissen, Daten, Analysen"
+    acronym: "LWDA"
+    series: "LWDA '23"
+    location: "Marburg, Germany"
+    date-start: 2023-10-09
+    date-end: 2023-10-11
+  year: 2023
+  publisher:
+    name: "CEUR Workshop Proceedings"
+  url: "https://github.com/floriansiepe/CAML"
+  numpages: 12

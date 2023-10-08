@@ -25,6 +25,19 @@ and `build_model` methods. See also the [prebuilt factories](src/aggregation/obj
 
 ## Citation
 
+If this is useful for your research, please consider citing the paper:
+
 ```bibtex
-tbd
+@inproceedings{Siepe2023,
+    author = {Florian Siepe and Phillip Wenig and Thorsten Papenbrock},
+    title = {A Few Models to Rule Them All: Aggregating Machine Learning Models},
+    booktitle = {Proceedings of the Conference Lernen, Wissen, Daten, Analysen},
+    numpages = {12},
+    year = {2023},
+    series = {LWDA '23},
+    location = {Marburg, Germany},
+    isbn = {urn:nbn:de:},
+    publisher = {CEUR Workshop Proceedings},
+    url = {https://ceur-ws.org/XXXX}
+}
 ```
