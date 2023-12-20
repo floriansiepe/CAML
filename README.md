@@ -25,7 +25,7 @@ and `build_model` methods. See also the [prebuilt factories](src/aggregation/obj
 
 ## Citation
 
-If this is useful for your research, please consider citing the paper:
+If this is useful for your research, please consider citing the paper ([PDF](https://floriansiepe.de/publication/caml/Model_Clustering___LWDA_2023_Paper.pdf)):
 
 ```bibtex
 @inproceedings{Siepe2023,
